@@ -1,0 +1,95 @@
+body {
+  font-family: "Benton Sans", "Helvetica Neue", helvetica, arial, sans-serif;
+  margin: 2em;
+  font-size: 14px;
+}
+
+h1 {
+  font-style: italic;
+  color: #28a745;
+}
+
+.post-box {
+  display: flex;
+}
+
+.post-box-input-wrap {
+  flex: 1;
+}
+
+.post-box-input {
+  padding: 10px;
+  width: 100%;
+  line-height: 20px;
+  box-sizing: border-box;
+}
+
+.post-box-input-count {
+  padding: 5px 10px;
+  text-align: right;
+}
+
+.post-box-button {
+  margin-left: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  line-height: 20px;
+}
+
+.post-list {
+  margin-top: 10px;
+  border: 1px solid #ccc;
+}
+
+.post-item {
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+}
+
+.post-item:last-child {
+  border-bottom-style: none;
+}
+
+.post-item-index {
+  padding-right: 10px;
+}
+
+.post-item-vote {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  border: 1px solid #ccc;
+}
+
+.post-item-vote button {
+  margin: 10px auto;
+  width: 100%;
+  display: block;
+  text-align: center;
+  padding: 5px 0;
+  color: #fff;
+  border-style: none;
+  outline: none;
+  border-radius: 5px;
+}
+
+.post-item-vote-red {
+  flex: 1;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+}
+
+.post-item-vote-red button {
+  background-color: #dc3545;
+  border-bottom: 2px solid #b02a37;
+}
+
+.post-item-vote-blue {
+  flex: 1;
+  padding: 10px;
+}
+
+.post-item-vote-blue button {
+  background-color: #007bff;
+  border-bottom: 2px solid #0362c8;
+}
