@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/script.js" defer></script>
+  </head>
+  <body>
+    <h1>A or B</h1>
+    {{#if admin}}
+    <div class="post-box">
+      <div class="post-box-input-wrap">
+        <input
+          type="text"
+          maxlength="１０"
+          id="js-text-send"
+          class="post-box-input"
+        />
+        <div class="post-box-input-count">
+          (<span id="js-text-count">0</span>/140文字)
+        </div>
+      </div>
+      <div>
+        <input
+          type="button"
+          value="送信"
+          id="js-btn-send"
+          class="post-box-button"
+        />
+      </div>
+    </div>
+    {{/if}}
+    
+    <div id="js-list" class="post-list"></div>
+    
+    {{#if error}}
+    <p class="error">
+      {{error}}
+    </p>
+    {{else}}
+
+      <script>
+        let data = {
+          choiceText: [
+            {{#each choiceText}}
+              '{{this}}'{{#if @last}}{{else}},{{/if}}
+            {{/each}}
+          ]
+        };
+      </script>
+    {{/if}}
+    
+
+  </body>
+</html>

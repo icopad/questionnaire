@@ -1,0 +1,19 @@
+{
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "handlebars": "^4.7.7",
+    "fastify": "^3.25.3",
+    "fastify-static": "^4.5.0",
+    "fastify-formbody": "^5.2.0",
+    "point-of-view": "^5.0.0",
+    "sqlite3": "^5.0.2",
+    "sqlite": "^4.0.23"
+  }
+}
