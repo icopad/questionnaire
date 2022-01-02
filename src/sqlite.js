@@ -26,64 +26,36 @@ dbWrapper
   .then(async dBase => {
     db = dBase;
 
-    // We use try and catch blocks throughout to handle any database errors
     try {
-      // The async / await syntax lets us write the db operations in a way that won't block the app
       if (!exists) {
-        // Database doesn't exist yet - create Choices and Log tables
         await db.run(
           "CREATE TABLE Choices (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT, vote_a INTEGER, vote_b INTEGER)"
         );
 
-        // Add default choices to table
         await db.run(
           "INSERT INTO Choices (text, vote_a, vote_b) VALUES ('本文1本文1本文1本文1', 0, 0), ('本文2本文2本文2', 0, 0)"
         );
-
-        // Log can start empty - we'll insert a new record whenever the user chooses a poll option
-        // await db.run(
-        //   "CREATE TABLE Log (id INTEGER PRIMARY KEY AUTOINCREMENT, choice TEXT, time STRING)"
-        // );
       } else {
-        // We have a database already - write Choices records to log for info
         console.log(await db.all("SELECT * from Choices"));
-
-        //If you need to remove a table from the database use this syntax
-        //db.run("DROP TABLE Logs"); //will fail if the table doesn't exist
       }
     } catch (dbError) {
       console.error(dbError);
     }
   });
 
-// Our server script will call these methods to connect to the db
 module.exports = {
   
-  /**
-   * Get the options in the database
-   *
-   * Return everything in the Choices table
-   * Throw an error in case of db connection issues
-   */
-  getOptions: async () => {
-    // We use a try catch block in case of db errors
+  addQuestion: async (question) => {
     try {
-      return await db.all("SELECT * from Choices");
+      return await db.run(
+        `INSERT INTO Choices (text, vote_a, vote_b) VALUES ('${question}', 0, 0)`
+      );
     } catch (dbError) {
-      // Database connection error
       console.error(dbError);
     }
   },
 
-  /**
-   * Process a user vote
-   *
-   * Receive the user vote string from server
-   * Add a log entry
-   * Find and update the chosen option
-   * Return the updated list of votes
-   */
-  getChoices: async vote => {
+  getChoices: async () => {
     try {
       return await db.all("SELECT * from Choices");
     } catch (dbError) {
@@ -91,31 +63,11 @@ module.exports = {
     }
   },
 
-  /**
-   * Get logs
-   *
-   * Return choice and time fields from all records in the Log table
-   */
-  // getLogs: async () => {
-  //   // Return most recent 20
-  //   try {
-  //     // Return the array of log entries to admin page
-  //     return await db.all("SELECT * from Log ORDER BY time DESC LIMIT 20");
-  //   } catch (dbError) {
-  //     console.error(dbError);
-  //   }
-  // },
 
-  /**
-   * Clear logs and reset votes
-   *
-   * Destroy everything in Log table
-   * Reset votes in Choices table to zero
-   */
   clearHistory: async () => {
     try {
-//       // Delete the logs
-//       await db.run("DELETE from Log");
+      // Delete the Choices data
+      await db.run("DELETE from Choices");
 
 //       // Reset the vote numbers
 //       await db.run("UPDATE Choices SET picks = 0");

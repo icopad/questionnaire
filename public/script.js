@@ -2,6 +2,7 @@ const url1 = "wss://flapjack-octopus-ws-server.glitch.me/message";
 const url2 = "wss://flapjack-octopus-ws-server.glitch.me/vote";
 const connection1 = new WebSocket(url1);
 const connection2 = new WebSocket(url2);
+const httpRequest = new XMLHttpRequest();
 
 const elemList = document.getElementById("js-list");
 const maxTextSize = 140;
@@ -60,7 +61,19 @@ function addListItem(text) {
 }
 
 connection1.onmessage = e => {
-  addListItem(e.data);
+  
+  httpRequest.open( 'POST', '/add' );
+  httpRequest.setRequestHeader( 'content-type', 'application/x-www-form-urlencoded;charset=UTF-8' );
+  httpRequest.send( 'text=hoge' );
+
+  httpRequest.onreadystatechange = function() {
+    if( httpRequest.readyState === 4 && httpRequest.status === 200 ) {
+      //エラーを出さずに通信が完了した時の処理。例↓
+      console.log( httpRequest.responseText );
+      addListItem(e.data);
+    }
+  }
+  
 };
 
 connection2.onmessage = e => {};
@@ -101,4 +114,10 @@ if (elemInput) {
     },
     false
   );
+}
+
+if(window.data && window.data.choiceText) {
+  window.data.choiceText.forEach(item => {
+    addListItem(item);
+  });
 }
