@@ -39,8 +39,8 @@ fastify.post("/choice", async (request, reply) => {
 
   let options;
 
-  if (request.body && request.body.choice) {
-    params.setChoice = await db.setChoice(request.body.choice);
+  if (request.body && request.body.choice && request.body.id) {
+    params.setChoice = await db.setChoice(request.body.id, request.body.choice); 
   }
 
   params.error = params.setChoice ? null : data.errorMessage;

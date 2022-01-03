@@ -22,6 +22,29 @@ connection2.onerror = error => {
   console.log(`WebSocket error2: ${error}`);
 };
 
+function choice(id, choice) {
+  return new Promise((resolve, reject) => {
+    httpRequest.open("POST", "/choice");
+    httpRequest.setRequestHeader(
+      "content-type",
+      "application/x-www-form-urlencoded;charset=UTF-8"
+    );
+    httpRequest.send(`id=${id}&choice=${choice}`);
+
+    httpRequest.onload = () => {
+      if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+        // console.log(httpRequest.responseText);
+        resolve(httpRequest.responseText);
+      } else {
+        reject(httpRequest.status);
+      }
+    };
+    httpRequest.onerror = (e) => {
+      reject(httpRequest.status);
+    };
+  });
+}
+
 function addListItem(text, id) {
   if (elemList) {
     postIndexNum++;
@@ -51,14 +74,36 @@ function addListItem(text, id) {
     elemPostVoteRed.addEventListener(
       "click",
       () => {
-        choice(id, "a", elemPostVoteRed);
+        choice(id, "a")
+          .then(value => {
+            console.log(value); // => resolve!!
+            if (value) {
+              elemPostVoteRed.disabled = true;
+              elemPostVoteBlue.disabled = true;
+            }
+          })
+          .catch(e => {
+            console.log("promise reject A");
+            console.log(e);
+          });
       },
       false
     );
     elemPostVoteBlue.addEventListener(
       "click",
       () => {
-        choice(id, "b", elemPostVoteBlue);
+        choice(id, "b")
+          .then(value => {
+            console.log(value); // => resolve!!
+            if (value) {
+              elemPostVoteRed.disabled = true;
+              elemPostVoteBlue.disabled = true;
+            }
+          })
+          .catch(e => {
+            console.log("promise reject B");
+            console.log(e);
+          });
       },
       false
     );
@@ -72,24 +117,6 @@ function addListItem(text, id) {
     elemList.append(elemPost);
   }
 }
-
-function choice(id, choice, elemButton) {
-  httpRequest.open("POST", "/");
-  httpRequest.setRequestHeader(
-    "content-type",
-    "application/x-www-form-urlencoded;charset=UTF-8"
-  );
-  httpRequest.send();
-
-  httpRequest.onreadystatechange = function() {
-    if (httpRequest.readyState === 4 && httpRequest.status === 200) {
-      // console.log(httpRequest.responseText);
-    }
-  };
-
-  //elemButton.disabled = true;
-}
-
 connection1.onmessage = e => {
   try {
     let json = JSON.parse(e.data);

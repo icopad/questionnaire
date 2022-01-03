@@ -101,6 +101,12 @@ h1 {
   border-radius: 5px;
 }
 
+.post-item-vote button:disabled {
+  background-color: #666666;
+  border-bottom: 2px solid #555555;
+  pointer-events: none;
+}
+
 .post-item-vote-red {
   flex: 1;
   padding: 10px;
