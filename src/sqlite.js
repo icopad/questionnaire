@@ -31,10 +31,6 @@ dbWrapper
         await db.run(
           "CREATE TABLE Choices (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT, vote_a INTEGER, vote_b INTEGER)"
         );
-
-        await db.run(
-          "INSERT INTO Choices (text, vote_a, vote_b) VALUES ('本文1本文1本文1本文1', 0, 0), ('本文2本文2本文2', 0, 0)"
-        );
       } else {
         console.log(await db.all("SELECT * from Choices"));
       }
@@ -44,12 +40,27 @@ dbWrapper
   });
 
 module.exports = {
-  
-  addQuestion: async (question) => {
+  addQuestion: async question => {
     try {
       return await db.run(
         `INSERT INTO Choices (text, vote_a, vote_b) VALUES ('${question}', 0, 0)`
       );
+    } catch (dbError) {
+      console.error(dbError);
+    }
+  },
+
+  setChoice: async (id, choice) => {
+    try {
+      if (choice === "a") {
+        return await db.run(
+          `UPDATE Choices SET vote_a = vote_a + 1 WHERE id = ${id}`
+        );
+      } else {
+        return await db.run(
+          `UPDATE Choices SET vote_b = vote_b + 1 WHERE id = ${id}`
+        );
+      }
     } catch (dbError) {
       console.error(dbError);
     }
@@ -63,20 +74,12 @@ module.exports = {
     }
   },
 
-
-  clearHistory: async () => {
+  clearData: async () => {
     try {
-      // Delete the Choices data
       await db.run("DELETE from Choices");
-
-//       // Reset the vote numbers
-//       await db.run("UPDATE Choices SET picks = 0");
-
-      // Return empty array
       return [];
     } catch (dbError) {
       console.error(dbError);
     }
   }
 };
-

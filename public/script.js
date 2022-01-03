@@ -22,7 +22,7 @@ connection2.onerror = error => {
   console.log(`WebSocket error2: ${error}`);
 };
 
-function addListItem(text) {
+function addListItem(text, id) {
   if (elemList) {
     postIndexNum++;
     let elemPost = document.createElement("div");
@@ -34,7 +34,7 @@ function addListItem(text) {
     let elemPostVoteBlue = document.createElement("div");
     let elemPostVoteRedButton = document.createElement("button");
     let elemPostVoteBlueButton = document.createElement("button");
-    
+
     elemPostText.innerHTML = text;
     elemPostIndexNum.innerText = postIndexNum.toString();
 
@@ -43,11 +43,25 @@ function addListItem(text) {
     elemPostVote.classList.add("post-item-vote");
     elemPostVoteRed.classList.add("post-item-vote-red");
     elemPostVoteBlue.classList.add("post-item-vote-blue");
-    elemPostVoteRedButton.innerText = "A Choice";
-    elemPostVoteBlueButton.innerText = "B Choice";
+    elemPostVoteRedButton.innerText = "Choice A";
+    elemPostVoteBlueButton.innerText = "Choice B";
 
     elemPostVoteRed.append(elemPostVoteRedButton);
     elemPostVoteBlue.append(elemPostVoteBlueButton);
+    elemPostVoteRed.addEventListener(
+      "click",
+      () => {
+        choice(id, "a", elemPostVoteRed);
+      },
+      false
+    );
+    elemPostVoteBlue.addEventListener(
+      "click",
+      () => {
+        choice(id, "b", elemPostVoteBlue);
+      },
+      false
+    );
 
     elemPostVote.append(elemPostVoteRed);
     elemPostVote.append(elemPostVoteBlue);
@@ -55,49 +69,103 @@ function addListItem(text) {
     elemPost.append(elemPostIndexNum);
     elemPost.append(elemPostText);
     elemPost.append(elemPostVote);
-
     elemList.append(elemPost);
   }
 }
 
-connection1.onmessage = e => {
-  
-  httpRequest.open( 'POST', '/add' );
-  httpRequest.setRequestHeader( 'content-type', 'application/x-www-form-urlencoded;charset=UTF-8' );
-  httpRequest.send( 'text=hoge' );
+function choice(id, choice, elemButton) {
+  httpRequest.open("POST", "/");
+  httpRequest.setRequestHeader(
+    "content-type",
+    "application/x-www-form-urlencoded;charset=UTF-8"
+  );
+  httpRequest.send();
 
   httpRequest.onreadystatechange = function() {
-    if( httpRequest.readyState === 4 && httpRequest.status === 200 ) {
-      //エラーを出さずに通信が完了した時の処理。例↓
-      console.log( httpRequest.responseText );
-      addListItem(e.data);
+    if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+      // console.log(httpRequest.responseText);
     }
-  }
-  
+  };
+
+  //elemButton.disabled = true;
+}
+
+connection1.onmessage = e => {
+  try {
+    let json = JSON.parse(e.data);
+    addListItem(json.text, json.id);
+  } catch (err) {}
 };
 
 connection2.onmessage = e => {};
 
 const elemInput = document.getElementById("js-text-send");
 const elemInputCount = document.getElementById("js-text-count");
-if (elemInput) {
-  document.getElementById("js-btn-send").addEventListener(
-    "click",
-    () => {
-      let text = elemInput.value.substr(0, maxTextSize);
-      if (text) {
-        // replace 削ってはいけない
-        text = text.replace(/&/g, "&amp;");
-        text = text.replace(/</g, "&lt");
-        text = text.replace(/>/g, "&gt");
-        text = text.replace(/"/g, "&quot");
-        text = text.replace(/'/g, "&#39");
-        connection1.send(text);
-        elemInput.value = "";
+const elemBtnDelete = document.getElementById("js-btn-delete");
+const elemBtnSend = document.getElementById("js-btn-send");
+
+if (elemBtnDelete) {
+  elemBtnDelete.addEventListener("click", () => {
+    httpRequest.open("POST", "/reset");
+    httpRequest.setRequestHeader(
+      "content-type",
+      "application/x-www-form-urlencoded;charset=UTF-8"
+    );
+    httpRequest.send();
+
+    httpRequest.onreadystatechange = function() {
+      if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+        // console.log(httpRequest.responseText);
       }
-    },
-    false
-  );
+    };
+  });
+}
+
+if (elemInput) {
+  if (elemBtnSend) {
+    elemBtnSend.addEventListener(
+      "click",
+      () => {
+        let text = elemInput.value.substr(0, maxTextSize);
+        if (text) {
+          // replace 削ってはいけない
+          text = text.replace(/&/g, "&amp;");
+          text = text.replace(/</g, "&lt");
+          text = text.replace(/>/g, "&gt");
+          text = text.replace(/"/g, "&quot");
+          text = text.replace(/'/g, "&#39");
+
+          httpRequest.open("POST", "/add");
+          httpRequest.setRequestHeader(
+            "content-type",
+            "application/x-www-form-urlencoded;charset=UTF-8"
+          );
+          httpRequest.send(`text=${text}`);
+          httpRequest.onreadystatechange = function() {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+              try {
+                let json = JSON.parse(httpRequest.responseText);
+                if (!json.error && json.addResult) {
+                  console.log(json.addResult);
+                  let sendData = {
+                    id: json.addResult.lastID,
+                    text: text
+                  };
+                  connection1.send(JSON.stringify(sendData));
+                } else {
+                  console.log("db error");
+                }
+              } catch (err) {
+                console.log("json parse error");
+              }
+            }
+          };
+          elemInput.value = "";
+        }
+      },
+      false
+    );
+  }
 
   elemInput.addEventListener(
     "keyup",
@@ -116,8 +184,9 @@ if (elemInput) {
   );
 }
 
-if(window.data && window.data.choiceText) {
-  window.data.choiceText.forEach(item => {
-    addListItem(item);
+if (window.data && window.data.choiceData) {
+  let choiceData = window.data.choiceData;
+  Object.keys(choiceData).forEach(key => {
+    addListItem(choiceData[key], key);
   });
 }

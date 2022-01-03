@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>test</title>
+    <title>A or B ?</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,7 +9,7 @@
     <script src="/script.js" defer></script>
   </head>
   <body>
-    <h1>A or B</h1>
+    <h1><span class="text-red">A</span> or <span class="text-blue">B</span> ?</h1>
     {{#if admin}}
     <div class="post-box">
       <div class="post-box-input-wrap">
@@ -28,32 +28,33 @@
           type="button"
           value="送信"
           id="js-btn-send"
-          class="post-box-button"
+          class="post-button"
         />
       </div>
     </div>
+    <div class="delete-box">
+      <button id="js-btn-delete" class="delete-button">全削除</button>
+    </div>
     {{/if}}
-    
+
     <div id="js-list" class="post-list"></div>
-    
+
     {{#if error}}
     <p class="error">
       {{error}}
     </p>
     {{else}}
 
-      <script>
-        let data = {
-          choiceText: [
-            {{#each choiceText}}
-              '{{this}}'{{#if @last}}{{else}},{{/if}}
-            {{/each}}
-          ]
-        };
-        window.data = data;
-      </script>
+    <script>
+      let data = {
+        choiceData: {
+          {{#each choiceData}}
+            {{this.id}}: '{{this.text}}'{{#if @last}}{{else}},{{/if}}
+          {{/each}}
+        }
+      };
+      window.data = data;
+    </script>
     {{/if}}
-    
-
   </body>
 </html>
